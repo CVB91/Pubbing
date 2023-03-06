@@ -21,6 +21,7 @@ const firebaseAuthConfig = {
 const FirebaseAuth: FunctionComponent = () => {
   const [renderAuth, setRenderAuth] = useState(false);
 
+  // this useEffect is to preempt a render error as firrebase only wants to run in the browser.
   useEffect(() => {
     setRenderAuth(true)
   }, [])
