@@ -54,14 +54,14 @@ export const AuthProvider: FunctionComponent = ({ children }) => {
     })
     
     return () => {
-      cancelAuthListener()   // this is called when the component is unmounted.
+      cancelAuthListener()   // this is called when the component is unmounted, as we no longer want to listen to auth changes
     }
    }, [] )
 
   return <AuthContext.Provider value={{user, logout,authenticated: !!user}}>{children}</AuthContext.Provider>
 }
 
-// this function is going to give access to the context created above and this means that this will accessible anyywhere in the app.
+// this function is going to give access to the context created above and this means that this will accessible anyywhere in the app. As it returns the AuthContext(user, logout and authenticated)
 
 export function useAuth() {
   return useContext(AuthContext)

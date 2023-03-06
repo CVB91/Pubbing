@@ -14,3 +14,5 @@ export default function MyApp({ Component, pageProps }: AppProps) {
     </Head>
   <Component {...pageProps} /></AuthProvider>;
 }
+
+//Because the Authprovider is wrapped around every page of our application every subcomponent get access to the context
