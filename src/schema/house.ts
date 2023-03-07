@@ -80,7 +80,7 @@ export class HouseResolver {
   @Mutation((_returns) => House, { nullable: true })
   async createHouse(
     @Arg("input") input: HouseInput,
-    @Ctx() ctx: AuthorizedContext
+    @Ctx() ctx: AuthorizedContext,
   ) {
     return await ctx.prisma.house.create({
       data: {
