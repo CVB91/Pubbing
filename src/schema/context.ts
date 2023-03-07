@@ -2,12 +2,13 @@ import { PrismaClient } from "../prisma";
 
 
 
-export interface Context {
+ interface Context {
   uid: string | null;
-  primsa: PrismaClient;
+  prisma: PrismaClient;
 
 }
 
-export interface AuthorizedContext extends Context {
+interface AuthorizedContext extends Context {
   uid: string;
 }
+export type {AuthorizedContext, Context}
