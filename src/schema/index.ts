@@ -18,4 +18,5 @@ export const schema = buildSchemaSync({
   resolvers: [DummyResolver, ImageResolver, HouseResolver],
   emitSchemaFile: process.env.NODE_ENV === "development",
   authChecker,
+  validate: false
 })
