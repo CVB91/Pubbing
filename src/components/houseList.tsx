@@ -3,15 +3,16 @@ import { Image } from "cloudinary-react";
 import { HousesQuery_houses } from "src/generated/HousesQuery";
 
 interface IProps {
-  houses: HousesQuery_houses []
-}
+  houses: HousesQuery_houses[];
+  setHighlightedId: (id: string | null) => void;
+ }
 
-export default function HouseList({ houses } : IProps) {
+export default function HouseList({ houses, setHighlightedId } : IProps) {
   return (
     <>
       {houses.map((house) => (
         <Link key={house.id} href={`/houses/${house.id}`}>
-          <div className="px-6 pt-4 cursor-pointer flex flex-wrap">
+          <div className="px-6 pt-4 cursor-pointer flex flex-wrap" onMouseEnter={() => setHighlightedId(house.id)} onMouseLeave={() => setHighlightedId(null)}>
             <div className="sm:w-full md:w-1/2">
               <Image
                 className="mx-auto my-4"

@@ -5,14 +5,15 @@ import ReactMapGL, { Marker, Popup, ViewState } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useLocalState } from "src/utils/useLocalState";
 import { HousesQuery_houses } from "src/generated/HousesQuery";
-// import { SearchBox } from "./searchBox";
+import { SearchBox } from "./searchBox";
 
 interface IProps {
   setDataBounds: (bounds: string) => void;
   houses: HousesQuery_houses[];
+  highlightedId: string | null;
 }
 
-export default function Map({ setDataBounds, houses }: IProps) {
+export default function Map({ setDataBounds, houses, highlightedId }: IProps) {
   const [selected, setSelected] = useState<HousesQuery_houses | null>(null);
   const mapRef = useRef<ReactMapGL | null>(null);
   const [viewport, setViewport] = useLocalState<ViewState>("viewport", {
@@ -45,6 +46,25 @@ export default function Map({ setDataBounds, houses }: IProps) {
           }
         }}
       >
+        <div className="absolute top-0 w-full z-10 p-4">
+          <SearchBox
+            defaultValue=""
+            onSelectAddress={(_address, latitude, longitude) => {
+              if (latitude && longitude) {
+                setViewport((old) => ({
+                  ...old,
+                  latitude,
+                  longitude,
+                  zoom: 12,
+                }));
+                if (mapRef.current) {
+                  const bounds = mapRef.current.getMap().getBounds()
+                  setDataBounds(JSON.stringify(bounds.toArray()))
+                }
+              }
+            }}
+          />
+        </div>
         {houses.map((house) => (
           <Marker
             key={house.id}
@@ -52,13 +72,18 @@ export default function Map({ setDataBounds, houses }: IProps) {
             longitude={house.longitude}
             offsetLeft={-15}
             offsetTop={-15}
+            className={highlightedId === house.id ? "marker-active" : ""}
           >
             <button
               style={{ width: "30px", height: "30px", fontSize: "30px" }}
               type="button"
             >
               <img
-                src="/home-solid.svg"
+                src={
+                  highlightedId === house.id
+                    ? "/home-color.svg"
+                    : "/home-solid.svg"
+                }
                 alt="house"
                 className="w-6"
                 onClick={() => setSelected(house)}
