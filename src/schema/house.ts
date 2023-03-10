@@ -30,6 +30,15 @@ class CoordinatesInput {
 }
 
 @InputType()
+class BoundsInput {
+  @Field((_type) => CoordinatesInput)
+  sw!: CoordinatesInput;
+
+  @Field((_type) => CoordinatesInput)
+  ne!: CoordinatesInput;
+}
+
+@InputType()
 class HouseInput {
   @Field((_type) => String)
   address!: string;
@@ -73,41 +82,47 @@ class House {
   @Field((_type) => Int)
   bedrooms!: number;
 
-  @Field((_type )=> [House])
-
+  @Field((_type) => [House])
   async nearby(@Ctx() ctx: Context) {
+    const bounds = getBoundsOfDistance(
+      { latitude: this.latitude, longitude: this.longitude },
+      10000
+    );
 
-    const bounds = getBoundsOfDistance({latitude: this.latitude, longitude: this.longitude}, 10000)
-    
     return ctx.prisma.house.findMany({
       where: {
         latitude: { gte: bounds[0].latitude, lte: bounds[1].latitude },
         longitude: { gte: bounds[0].longitude, lte: bounds[1].longitude },
-        id: {not : {equals: this.id}}
+        id: { not: { equals: this.id } },
       },
       take: 25,
-    })
+    });
   }
-
-
-  
 }
 
 @Resolver()
 export class HouseResolver {
-
-  @Query(_returns => House, {nullable: true} )
+  @Query((_returns) => House, { nullable: true })
   async house(@Arg("id") id: string, @Ctx() ctx: Context) {
+    return ctx.prisma.house.findUnique({ where: { id: parseInt(id, 10) } });
+  }
 
-    return ctx.prisma.house.findUnique({where : {id: parseInt(id, 10)}})
-
+  @Query((_returns) => [House], { nullable: false })
+  async houses(@Arg("bounds") bounds: BoundsInput, @Ctx() ctx: Context) {
+    return ctx.prisma.house.findMany({
+      where: {
+        latitude: { gte: bounds.sw.latitude, lte: bounds.ne.latitude },
+        longitude: { gte: bounds.sw.longitude, lte: bounds.ne.longitude },
+      },
+      take: 50,
+    });
   }
 
   @Authorized()
   @Mutation((_returns) => House, { nullable: true })
   async createHouse(
     @Arg("input") input: HouseInput,
-    @Ctx() ctx: AuthorizedContext,
+    @Ctx() ctx: AuthorizedContext
   ) {
     return await ctx.prisma.house.create({
       data: {
